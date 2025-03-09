@@ -1,10 +1,10 @@
 [project]
 name = "vocal-remover"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
   { name="Hossein", email="hoseinshr1055@gmail.com" },
 ]
-description = "Text summarizer implemented via langchain."
+description = "Vocal remover."
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [

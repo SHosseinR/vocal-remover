@@ -2,9 +2,9 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from vocal_remover.lib import dataset
-from vocal_remover.lib import nets
-from vocal_remover.lib import spec_utils
+from vocal_remover import dataset
+from vocal_remover import nets
+from vocal_remover import spec_utils
 import os
 import librosa
 import soundfile as sf
@@ -21,13 +21,15 @@ tta = False
 
 class Separator(object):
 
-    def __init__(self, model, device=None, batchsize=1, cropsize=256, postprocess=False):
-        self.model = model
-        self.offset = model.offset
+    def __init__(self, device=None, batchsize=4, cropsize=256, postprocess=False):
+        self.model = self.load_vr_model()
+        self.offset = self.model.offset
         self.device = device
         self.batchsize = batchsize
         self.cropsize = cropsize
         self.postprocess = postprocess
+        
+        
 
     def _postprocess(self, X_spec, mask):
         if self.postprocess:
@@ -140,23 +142,16 @@ class Separator(object):
         print('done')
         sf.write('{}vocals.wav'.format(output_dir), wave.T, sr)
 
-def load_vr_model() -> Separator:
+    def load_vr_model(self):
 
-    print('loading model...', end=' ')
-    model_ckpt_path = hf_hub_download(repo_id="hoseinshr1055/vocal_remover", filename="baseline.pth")
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print('loading model...', end=' ')
+        model_ckpt_path = hf_hub_download(repo_id="hoseinshr1055/vocal_remover", filename="baseline.pth")
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    model = nets.CascadedNet(n_fft, hop_length, 32, 128)
-    model.load_state_dict(torch.load(model_ckpt_path, map_location='cpu'))
-    model.to(device)
-    print('done')
-    sp = Separator(
-        model=model,
-        device=device,
-        batchsize=batchsize,
-        cropsize=cropsize,
-        postprocess=postprocess
-    )
-    return sp
+        model = nets.CascadedNet(n_fft, hop_length, 32, 128)
+        model.load_state_dict(torch.load(model_ckpt_path, map_location='cpu'))
+        model.to(device)
+        print('done')
+        return model
 
 

@@ -21,10 +21,9 @@ tta = False
 
 class Separator(object):
 
-    def __init__(self, device=None, batchsize=4, cropsize=256, postprocess=False):
+    def __init__(self, batchsize=4, cropsize=256, postprocess=False):
         self.model = self.load_vr_model()
         self.offset = self.model.offset
-        self.device = device
         self.batchsize = batchsize
         self.cropsize = cropsize
         self.postprocess = postprocess
@@ -146,11 +145,11 @@ class Separator(object):
 
         print('loading model...', end=' ')
         model_ckpt_path = hf_hub_download(repo_id="hoseinshr1055/vocal_remover", filename="baseline.pth")
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         model = nets.CascadedNet(n_fft, hop_length, 32, 128)
         model.load_state_dict(torch.load(model_ckpt_path, map_location='cpu'))
-        model.to(device)
+        model.to(self.device)
         print('done')
         return model
 
